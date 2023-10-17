@@ -31,8 +31,8 @@ cd ..
 echo "Preparing raw datasets..."
 mkdir -p raw_data
 cd raw_data
-wget http://dail-wlcb.oss-cn-wulanchabu.aliyuncs.com/dj-competition/raw_data/raw_data_en.jsonl --multi
-wget http://dail-wlcb.oss-cn-wulanchabu.aliyuncs.com/dj-competition/raw_data/raw_data_zh.jsonl --multi
+funget http://dail-wlcb.oss-cn-wulanchabu.aliyuncs.com/dj-competition/raw_data/raw_data_en.jsonl --multi
+funget http://dail-wlcb.oss-cn-wulanchabu.aliyuncs.com/dj-competition/raw_data/raw_data_zh.jsonl --multi
 
 cd -
 
