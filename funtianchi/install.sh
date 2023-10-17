@@ -1,4 +1,4 @@
-pip install git+https://github.com/funtianchi/simhash-py.git
+pip install git+https://gitee.com/funtianchi/simhash-py.git
 
 # for training
 cd lm-training
@@ -12,7 +12,7 @@ cd ..
 
 
 # for data-juicer
-git clone https://github.com/funtianchi/data-juicer
+git clone https://gitee.com/funtianchi/data-juicer
 cd data-juicer
 pip install -v -e .[all]
 
