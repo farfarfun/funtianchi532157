@@ -1,3 +1,5 @@
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple funget funfile
+
 #pip install git+https://github.com/HYLcool/simhash-py.git
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple git+https://gitee.com/funtianchi/simhash-py.git
 
