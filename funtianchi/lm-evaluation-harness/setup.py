@@ -1,10 +1,9 @@
-import setuptools
+from setuptools import setup
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-setuptools.setup(
-    name="lm_eval",
+setup(    name="lm_eval",
     version="0.3.0",
     author="Leo Gao",
     author_email="lg@eleuther.ai",
@@ -53,3 +52,5 @@ setuptools.setup(
         "anthropic": ["anthropic"],
     },
 )
+
+

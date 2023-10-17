@@ -8,6 +8,7 @@ from lm_eval import tasks, evaluator, utils, base
 logging.getLogger("openai").setLevel(logging.WARNING)
 
 
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True)
@@ -16,13 +17,10 @@ def parse_args():
     parser.add_argument("--provide_description", action="store_true")
     parser.add_argument("--num_fewshot", type=int, default=0)
     parser.add_argument("--batch_size", type=str, default=None)
-    parser.add_argument("--max_batch_size", type=int, default=None,
-                        help="Maximal batch size to try with --batch_size auto")
+    parser.add_argument("--max_batch_size", type=int, default=None,help="Maximal batch size to try with --batch_size auto")
     parser.add_argument("--device", type=str, default=None)
     parser.add_argument("--output_path", default=None)
-    parser.add_argument("--limit", type=float, default=None,
-                        help="Limit the number of examples per task. "
-                             "If <1, limit is a percentage of the total number of examples.")
+    parser.add_argument("--limit", type=float, default=None,help="Limit the number of examples per task. If <1, limit is a percentage of the total number of examples.")
     parser.add_argument("--data_sampling", type=float, default=None)
     parser.add_argument("--no_cache", action="store_true")
     parser.add_argument("--decontamination_ngrams_path", default=None)
@@ -43,9 +41,7 @@ def main():
     assert not args.provide_description  # not implemented
 
     if args.limit:
-        print(
-            "WARNING: --limit SHOULD ONLY BE USED FOR TESTING. REAL METRICS SHOULD NOT BE COMPUTED USING LIMIT."
-        )
+        print("WARNING: --limit SHOULD ONLY BE USED FOR TESTING. REAL METRICS SHOULD NOT BE COMPUTED USING LIMIT.")
 
     assert not (args.infer_only and args.eval_only), "only one of --infer_only and --eval_only can appear at the same time"
     
