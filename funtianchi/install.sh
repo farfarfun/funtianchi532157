@@ -1,5 +1,8 @@
-pip install -U git+https://gitee.com/funtianchi/funget.git
+pip install -U -i http://mirrors.aliyun.com/pypi/simple/ funpypi funbuild
 pip install -U -i http://mirrors.aliyun.com/pypi/simple/ funget funfile
+yes | pip uninstall funfile && pip install -U git+https://gitee.com/farfarfun/funfile.git
+yes | pip uninstall funget && pip install -U git+https://gitee.com/farfarfun/funget.git
+
 
 #pip install git+https://github.com/HYLcool/simhash-py.git
 pip install -i http://mirrors.aliyun.com/pypi/simple/ git+https://gitee.com/funtianchi/simhash-py.git
