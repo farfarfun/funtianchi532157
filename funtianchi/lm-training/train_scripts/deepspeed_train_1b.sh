@@ -40,7 +40,7 @@ nproc_per_node=`nvidia-smi | grep MiB | wc -l`
 master_port=50000
 
 grad_acc=1
-if [[ nproc_per_node >= 1 ]]; then
+if [[ $nproc_per_node >= 1 ]]; then
     grad_acc=`expr 256 / ${bs_per_gpu} / ${num_nodes} / ${nproc_per_node}`
 fi
 
