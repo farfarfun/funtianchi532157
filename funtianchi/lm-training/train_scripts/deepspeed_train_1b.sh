@@ -39,7 +39,11 @@ num_nodes=1
 nproc_per_node=`nvidia-smi | grep MiB | wc -l`
 master_port=50000
 
-grad_acc=`expr 256 / ${bs_per_gpu} / ${num_nodes} / ${nproc_per_node}`
+grad_acc=1
+if [[ nproc_per_node >= 1 ]]; then
+    grad_acc=`expr 256 / ${bs_per_gpu} / ${num_nodes} / ${nproc_per_node}`
+fi
+
 deepspeed --num_gpus ${nproc_per_node} --num_nodes ${num_nodes} --master_port ${master_port} train.py \
     --model_name_or_path ${model_path} \
     --tokenizer ${tokenizer} \
