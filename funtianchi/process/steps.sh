@@ -17,11 +17,11 @@ elif [[ ${1} = "step31" ]]; then
   python process/process_data.py --config configs/alpaca_cot/alpaca-cot-zh-refine.yaml --dataset_path data/raw_data/raw_data_zh.jsonl --export_path $refine_data_path/zh_refine.jsonl --np 10
 elif [[ ${1} = "step41" ]]; then
   # 训练
-  sh lm-training/train_scripts/deepspeed_train_1b.sh $model_path $refine_data_path $finetuned_model_path
+  bash lm-training/train_scripts/deepspeed_train_1b.sh $model_path $refine_data_path $finetuned_model_path
 elif [[ ${1} = "step51" ]]; then
   # 评估
-  sh lm-evaluation-harness/examples/challenge-1B-stage1.sh dev finetuned_model_path 'data/challenge-data' $eval_dev_result_path
+  bash lm-evaluation-harness/examples/challenge-1B-stage1.sh dev finetuned_model_path 'data/challenge-data' $eval_dev_result_path
 elif [[ ${1} = "step61" ]]; then
   # 提交
-  sh lm-evaluation-harness/examples/challenge-1B-stage1.sh board finetuned_model_path 'data/challenge-data' $eval_board_result_path
+  bash lm-evaluation-harness/examples/challenge-1B-stage1.sh board finetuned_model_path 'data/challenge-data' $eval_board_result_path
 fi
