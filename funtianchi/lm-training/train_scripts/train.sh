@@ -1,5 +1,5 @@
 #!/bin/bash
-
+echo "train begin"
 set -e 
 if [ -z $XDG_CACHE_HOME ]; then
     export XDG_CACHE_HOME=$HOME/.cache
@@ -54,3 +54,4 @@ python train.py \
     --logging_steps 1 \
     --tf32 False | tee ${output_path}/training_log.txt
 
+echo "train done"
