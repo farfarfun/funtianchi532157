@@ -1,0 +1,31 @@
+-i https://pypi.tuna.tsinghua.edu.cn/simple
+--extra-index-url http://mirrors.aliyun.com/pypi/simple/
+--extra-index-url https://pypi.mirrors.ustc.edu.cn/simple
+numpy
+datasets
+transformers>=4.33.1
+torch
+sentencepiece
+tokenizers>=0.13.3
+peft
+accelerate
+deepspeed
+datasets>=2.0.0
+einops
+jsonlines
+numexpr
+openai>=0.6.4
+omegaconf>=2.2
+peft>=0.2.0
+pybind11>=2.6.2
+pycountry
+pytablewriter
+rouge-score>=0.0.4
+sacrebleu==1.5.0
+scikit-learn>=0.24.1
+sqlitedict
+torch>=1.7
+tqdm-multiprocess
+transformers>=4.1
+zstandard
+accelerate>=0.17.1
