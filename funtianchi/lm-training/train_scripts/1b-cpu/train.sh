@@ -1,8 +1,6 @@
 #!/bin/bash
 
 set -e 
-export CUDA_DEVICE_MAX_CONNECTIONS=1
-
 if [ -z $XDG_CACHE_HOME ]; then
     export XDG_CACHE_HOME=$HOME/.cache
 fi
@@ -29,19 +27,13 @@ mkdir -p ${output_path}/
 
 WORK_DIR=$(echo `cd $(dirname $0); pwd | xargs dirname`)
 cd ${WORK_DIR}
-
-SCRIPT_FILE=$(readlink -f $0)
-# Deepspeed
-ds_config_file=$SCRIPT_FILE/ds_config_stage3.json
+cd ../
 
 # Train Parameter
 bs_per_gpu=1
-num_nodes=1
-nproc_per_node=`nvidia-smi | grep MiB | wc -l`
-master_port=50000
+grad_acc=32
 
-grad_acc=`expr 256 / ${bs_per_gpu} / ${num_nodes} / ${nproc_per_node}`
-deepspeed --num_gpus ${nproc_per_node} --num_nodes ${num_nodes} --master_port ${master_port} train.py \
+python train.py \
     --model_name_or_path ${model_path} \
     --tokenizer ${tokenizer} \
     --data_path ${data_path} \
@@ -49,9 +41,8 @@ deepspeed --num_gpus ${nproc_per_node} --num_nodes ${num_nodes} --master_port ${
     --per_device_train_batch_size ${bs_per_gpu} \
     --gradient_accumulation_steps ${grad_acc} \
     --lang en \
-    --bf16 True \
     --gradient_checkpointing_enable True \
-    --num_train_epochs 3 \
+    --num_train_epochs 1 \
     --model_max_length 1024 \
     --learning_rate 2.5e-5 \
     --weight_decay 0 \
@@ -62,5 +53,5 @@ deepspeed --num_gpus ${nproc_per_node} --num_nodes ${num_nodes} --master_port ${
     --save_total_limit 999 \
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
-    --tf32 True \
-    --deepspeed ${ds_config_file} | tee ${output_path}/training_log.txt
+    --tf32 False | tee ${output_path}/training_log.txt
+
