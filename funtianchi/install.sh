@@ -21,7 +21,7 @@ cd ..
 
 # for data-juicer
 #git clone https://github.com/alibaba/data-juicer
-pip install git+https://github.com/farfarfun/data-juicer.git -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install git+https://gitee.com/farfarfun/data-juicer.git -i https://pypi.tuna.tsinghua.edu.cn/simple
 # git clone https://gitee.com/funtianchi/data-juicer
 # cd data-juicer
 # pip install  -v -e .[all]
