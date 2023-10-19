@@ -1,10 +1,10 @@
 import os
 import subprocess
 
+
 # get data-juicer code directory
-home_path = os.getcwd()
+home_path = os.path.dirname(__file__)
 #home_path = '/home/admin'
-home_path = os.path.join(home_path, 'funtianchi532157/funtianchi')
 
 print(f"home_path: {home_path}")
 # path to save refined dataset
@@ -43,7 +43,7 @@ def step31():
 
 def step41():
     training_cmd = ['bash',
-                    f'{trainer_path}/train_scripts/train.sh',
+                    f'{trainer_path}/train_scripts/1b-T4/train.sh',
                     origin_model_path,
                     refine_data_en_path,
                     finetuned_model_path]

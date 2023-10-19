@@ -30,8 +30,9 @@ mkdir -p ${output_path}/
 WORK_DIR=$(echo `cd $(dirname $0); pwd | xargs dirname`)
 cd ${WORK_DIR}
 
+SCRIPT_FILE=$(readlink -f $0)
 # Deepspeed
-ds_config_file=./ds_config_stage3.json
+ds_config_file=$SCRIPT_FILE/ds_config.json
 
 # Train Parameter
 bs_per_gpu=1

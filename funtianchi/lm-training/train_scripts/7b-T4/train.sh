@@ -25,13 +25,15 @@ data_path=${2} # /path/to/your/dataset.jsonl
 # e.g ${WORK_DIR}/checkpoints/baichuan2-7b/
 output_path=${3} #/path/to/your/output/
 
-mkdir -p ${output_path}/
+#Save LoRA
+lora_path=${output_path}/lora
+mkdir -p ${lora_path}/
 
 WORK_DIR=$(echo `cd $(dirname $0); pwd | xargs dirname`)
 cd ${WORK_DIR}
 
 # Deepspeed
-ds_config_file=${WORK_DIR}/train_scripts/deepspeed_configs/ds_config_stage3.json
+ds_config_file=${WORK_DIR}/train_scripts/deepspeed_configs/ds_config_baichuan2_7b.json
 
 # Train Parameter
 bs_per_gpu=1
@@ -44,7 +46,7 @@ deepspeed --num_gpus ${nproc_per_node} --num_nodes ${num_nodes} --master_port ${
     --model_name_or_path ${model_path} \
     --tokenizer ${tokenizer} \
     --data_path ${data_path} \
-    --output_dir ${output_path} \
+    --output_dir ${lora_path} \
     --per_device_train_batch_size ${bs_per_gpu} \
     --gradient_accumulation_steps ${grad_acc} \
     --lang en \
@@ -62,4 +64,12 @@ deepspeed --num_gpus ${nproc_per_node} --num_nodes ${num_nodes} --master_port ${
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
     --tf32 True \
+    --target_modules W_pack \
+    --enable_lora True \
     --deepspeed ${ds_config_file} | tee ${output_path}/training_log.txt
+
+# Convert lora to huggingface model
+python convert_to_hf.py \
+     --model_name_or_path ${model_path} \
+     --lora_path ${lora_path}   \
+     --output_dir ${output_path} 
