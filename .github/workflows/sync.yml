@@ -2,8 +2,8 @@
 name: syncToGitee
 on:
   push:
-    tags:
-      - '*'
+    branchs:
+      - 'master'
 jobs:
   repo-sync:
     runs-on: ubuntu-latest
