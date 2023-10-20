@@ -5,7 +5,7 @@
 numpy
 datasets
 transformers>=4.33.1
-torch
+torch==1.13
 sentencepiece
 tokenizers>=0.13.3
 peft
