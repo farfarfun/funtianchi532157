@@ -29,6 +29,7 @@ mkdir -p ${output_path}/
 
 WORK_DIR=$(echo `cd $(dirname $0); pwd | xargs dirname`)
 cd ${WORK_DIR}
+cd ..
 
 # Deepspeed
 SCRIPT_FILE=$(readlink -f $0)
