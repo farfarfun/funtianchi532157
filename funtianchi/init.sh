@@ -5,5 +5,5 @@
 # ~/miniconda3/bin/conda init bash
 # ~/miniconda3/bin/conda init zsh
 
-yes | conda create -n dj_comp python=3.10
+yes | conda create -n dj_comp python=3.10 --channel https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
 conda activate dj_comp

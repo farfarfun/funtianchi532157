@@ -29,12 +29,9 @@ mkdir -p ${output_path}/
 
 WORK_DIR=$(echo `cd $(dirname $0); pwd | xargs dirname`)
 cd ${WORK_DIR}
-cd ../
 
-SCRIPT_FILE=$(readlink -f $0)
-SCRIPT_DIR=$(dirname $SCRIPT_FILE)
 # Deepspeed
-ds_config_file=$SCRIPT_DIR/ds_config.json
+ds_config_file=${WORK_DIR}/train_scripts/deepspeed_configs/ds_config_stage3.json
 
 # Train Parameter
 bs_per_gpu=1
@@ -51,7 +48,7 @@ deepspeed --num_gpus ${nproc_per_node} --num_nodes ${num_nodes} --master_port ${
     --per_device_train_batch_size ${bs_per_gpu} \
     --gradient_accumulation_steps ${grad_acc} \
     --lang en \
-    --fp16 True \
+    --bf16 True \
     --gradient_checkpointing_enable True \
     --num_train_epochs 3 \
     --model_max_length 1024 \
@@ -64,5 +61,5 @@ deepspeed --num_gpus ${nproc_per_node} --num_nodes ${num_nodes} --master_port ${
     --save_total_limit 999 \
     --lr_scheduler_type "cosine" \
     --logging_steps 1 \
-    --tf32 False \
+    --tf32 True \
     --deepspeed ${ds_config_file} | tee ${output_path}/training_log.txt
