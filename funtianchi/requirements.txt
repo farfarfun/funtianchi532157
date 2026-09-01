@@ -5,7 +5,7 @@
 numpy
 datasets
 transformers>=4.33.1
-torch==1.13
+torch>=2.13.0
 sentencepiece
 tokenizers>=0.13.3
 peft
@@ -25,7 +25,7 @@ rouge-score>=0.0.4
 sacrebleu==1.5.0
 scikit-learn>=0.24.1
 sqlitedict
-torch>=1.7
+torch>=2.13.0
 tqdm-multiprocess
 transformers>=4.1
 zstandard
