@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "funtianchi532157"
+version = "0.1.0"
+description = "Data processing, language model training, and evaluation workflows"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = [
+    "accelerate>=0.17.1",
+    "datasets>=2.0.0",
+    "farlog>=0.1.0",
+    "numpy>=1.24",
+    "peft>=0.2.0",
+    "torch>=2.13.0",
+    "transformers>=4.33.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/farfarfun/funtianchi532157"
+
+[tool.hatch.build.targets.wheel]
+packages = ["funtianchi"]

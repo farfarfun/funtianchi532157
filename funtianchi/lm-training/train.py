@@ -17,7 +17,7 @@ import warnings
 import os
 import random
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Sequence, List
+from typing import Any
 
 import numpy as np
 import torch
@@ -25,6 +25,9 @@ import transformers
 from datasets import load_dataset, Dataset
 from transformers import Trainer
 from tqdm import tqdm
+from farlog import getLogger
+
+logger = getLogger("funtianchi.lm-training")
 
 warnings.filterwarnings("ignore")
 
@@ -60,21 +63,21 @@ PROMPT_DICT = {
 
 @dataclass
 class ModelArguments:
-    model_name_or_path: Optional[str] = field(default="")
+    model_name_or_path: str | None = field(default="")
     tokenizer: str = field(default=None)
     gradient_checkpointing_enable: bool=field(default=True)
 
 
 @dataclass
 class DataArguments:
-    data_path: List[str]
+    data_path: list[str]
     lang: str = field(default="en")
     num_proc: int = field(default=1)
     
 
 @dataclass
 class TrainingArguments(transformers.TrainingArguments):
-    cache_dir: Optional[str] = field(default=None)
+    cache_dir: str | None = field(default=None)
     optim: str = field(default="adamw_torch")
     model_max_length: int = field(
         default=1024,
@@ -84,7 +87,7 @@ class TrainingArguments(transformers.TrainingArguments):
     only_update_attn: bool=field(default=False)
     
     enable_lora: bool=field(default=False)
-    target_modules: Optional[List[str]] = field(
+    target_modules: list[str] | None = field(
         default=None, metadata={"help": "Name(s) of target modules to apply LoRA"}
     )
     lora_r: int=field(default=8)
@@ -96,11 +99,11 @@ class TrainingArguments(transformers.TrainingArguments):
 def print_rank(*args, **kwargs):
     local_rank = int(os.getenv("LOCAL_RANK", 0))
     if local_rank == 0:
-        print(*args, **kwargs)
+        logger.info("%s", " ".join(map(str, args)))
 
 
 def smart_tokenizer_and_embedding_resize(
-    special_tokens_dict: Dict,
+    special_tokens_dict: dict[str, str],
     tokenizer: transformers.PreTrainedTokenizer,
     model: transformers.PreTrainedModel,
 ):
@@ -109,7 +112,7 @@ def smart_tokenizer_and_embedding_resize(
     Note: This is the unoptimized version that may make your embedding size not be divisible by 64.
     """
     def _get_resized_lm_head(
-        self, old_lm_head, new_num_tokens: Optional[int] = None, transposed: Optional[bool] = False
+        self, old_lm_head, new_num_tokens: int | None = None, transposed: bool = False
     ) :
         """
         Build a resized Linear Module from a provided old Linear Module. Increasing the size will add newly initialized
@@ -230,7 +233,7 @@ def preprocess(
     format_dataset: Dataset,
     tokenizer: transformers.PreTrainedTokenizer,
     num_proc:int = 1,
-) -> Dict:
+) -> dict[str, Any]:
  
     def _tokenize_fn(example):
         """Tokenize example"""
@@ -306,7 +309,7 @@ class SupervisedDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.dataset)
 
-    def __getitem__(self, i) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, i) -> dict[str, torch.Tensor]:
         return self.dataset[i]
 
 
@@ -316,7 +319,7 @@ class DataCollatorForSupervisedDataset(object):
 
     tokenizer: transformers.PreTrainedTokenizer
 
-    def __call__(self, instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
+    def __call__(self, instances: list[dict[str, Any]]) -> dict[str, torch.Tensor]:
         input_ids, labels = tuple([instance[key] for instance in instances] for key in ("input_ids", "labels"))
         input_ids = torch.nn.utils.rnn.pad_sequence(
             input_ids, batch_first=True, padding_value=self.tokenizer.pad_token_id
@@ -329,7 +332,7 @@ class DataCollatorForSupervisedDataset(object):
         )
 
 
-def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, data_args) -> Dict:
+def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, data_args) -> dict[str, Any]:
     """Make dataset and collator for supervised fine-tuning."""
     train_dataset = SupervisedDataset(data_args, tokenizer=tokenizer)
     data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
@@ -463,4 +466,3 @@ def train():
 
 if __name__ == "__main__":
     train()
-

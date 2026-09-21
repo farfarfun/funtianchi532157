@@ -1,12 +1,15 @@
 import os
 import subprocess
+from farlog import getLogger
+
+logger = getLogger("funtianchi.train")
 
 
 # get data-juicer code directory
 home_path = os.path.dirname(__file__)
 #home_path = '/home/admin'
 
-print(f"home_path: {home_path}")
+logger.info("home_path: %s", home_path)
 # path to save refined dataset
 trainer_path = os.path.join(home_path, 'lm-training')
 refine_data_en_path = f'{home_path}/outputs/refined_data/en_refine.jsonl'
@@ -29,7 +32,7 @@ def step31():
         '--export_path', refine_data_en_path,
         '--limit','20000',
         '--np', '4']
-    subprocess.run(refine_data_cmd)
+    subprocess.run(refine_data_cmd, check=True)
     refine_data_cmd = [
         'python',
         f'{home_path}/process/process_data.py',
@@ -38,7 +41,7 @@ def step31():
         '--export_path', refine_data_zh_path,
         '--limit','20000',
         '--np', '4']
-    subprocess.run(refine_data_cmd)
+    subprocess.run(refine_data_cmd, check=True)
 
 
 def step41():
@@ -47,8 +50,8 @@ def step41():
                     origin_model_path,
                     refine_data_en_path,
                     finetuned_model_path]
-    print(f'training_cmd: {" ".join(training_cmd)}')
-    subprocess.run(training_cmd)
+    logger.info('training_cmd: %s', " ".join(training_cmd))
+    subprocess.run(training_cmd, check=True)
     
 
 os.environ['PYTHONPATH'] = eval_path
@@ -61,6 +64,6 @@ def step51():
                       'dev',
                       finetuned_model_path,
                       '/srv/data/challenge-data', eval_result_path]
-    subprocess.run(evaluation_cmd, cwd=home_path)
+    subprocess.run(evaluation_cmd, cwd=home_path, check=True)
 
 step41()

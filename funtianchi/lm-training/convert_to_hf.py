@@ -1,14 +1,13 @@
 import transformers
-from typing import Optional, Dict
 from dataclasses import dataclass, field
 
 @dataclass
 class ModelArguments:
-    model_name_or_path: Optional[str] = field(default="")
+    model_name_or_path: str | None = field(default="")
 
 @dataclass
 class TrainingArguments(transformers.TrainingArguments):
-    lora_path: Optional[str] = field(default="")
+    lora_path: str | None = field(default="")
 
 
 def convert_to_hf():

@@ -1,4 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  echo "用法: $0 step11|step21|step31|step41|step51|step61" >&2
+  exit 2
+fi
 
 model_path='data/models/falcon-rw-1b'
 refine_data_path='outputs/refined_data'
@@ -25,4 +31,8 @@ elif [[ ${1} = "step51" ]]; then
 elif [[ ${1} = "step61" ]]; then
   # 提交
   bash lm-evaluation-harness/examples/challenge-1B-stage1.sh board finetuned_model_path 'data/challenge-data' $eval_board_result_path
+else
+  echo "不支持的步骤: ${1}" >&2
+  echo "用法: $0 step11|step21|step31|step41|step51|step61" >&2
+  exit 2
 fi
