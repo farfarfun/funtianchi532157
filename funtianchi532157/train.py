@@ -10,7 +10,7 @@ logger = getLogger("funtianchi.train")
 home_path = os.path.dirname(__file__)
 # home_path = '/home/admin'
 
-logger.info("home_path: %s", home_path)
+logger.info("home_path: {}", home_path)
 # path to save refined dataset
 trainer_path = os.path.join(home_path, "lm-training")
 refine_data_en_path = f"{home_path}/outputs/refined_data/en_refine.jsonl"
@@ -67,7 +67,7 @@ def step41() -> None:
         refine_data_en_path,
         finetuned_model_path,
     ]
-    logger.info("training_cmd: %s", " ".join(training_cmd))
+    logger.info("training_cmd: {}", " ".join(training_cmd))
     subprocess.run(training_cmd, check=True)
 
 

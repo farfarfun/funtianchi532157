@@ -61,7 +61,7 @@ zh_token_nums = TOKEN_NUMS - en_token_nums
 count = 0
 for i in range(len(ds_en)):
     count += get_token_count(ds_en[i])
-    logger.info("en num_tokens: index=%s count=%s", i, count)
+    logger.info("en num_tokens: index={} count={}", i, count)
     if count >= en_token_nums:
         break
 ds_en = ds_en.select(range(i + 1)).select_columns(["instruction", "input", "output"])
@@ -72,7 +72,7 @@ if ZH_DATA_DIR:
     count = 0
     for i in range(len(ds_zh)):
         count += get_token_count(ds_zh[i])
-        logger.info("zh num_tokens: index=%s count=%s", i, count)
+        logger.info("zh num_tokens: index={} count={}", i, count)
         if count >= zh_token_nums:
             break
     ds_zh = ds_zh.select(range(i + 1)).select_columns(

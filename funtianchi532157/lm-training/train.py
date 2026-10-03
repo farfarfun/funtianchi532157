@@ -99,7 +99,7 @@ class TrainingArguments(transformers.TrainingArguments):
 def print_rank(*args, **kwargs):
     local_rank = int(os.getenv("LOCAL_RANK", 0))
     if local_rank == 0:
-        logger.info("%s", " ".join(map(str, args)))
+        logger.info("{}", " ".join(map(str, args)))
 
 
 def smart_tokenizer_and_embedding_resize(
