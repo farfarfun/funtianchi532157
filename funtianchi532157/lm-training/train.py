@@ -11,6 +11,11 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
+#
+#    说明：本文件基于 Stanford Alpaca（tatsu-lab/stanford_alpaca）的
+#    train.py 改写而来，上游以 Apache License 2.0 发布；本次修改包括改用
+#    farlog 记录日志、补充中文 docstring 等，完整许可证文本见同目录
+#    train.py.LICENSE。
 import copy
 import logging
 import warnings
@@ -97,6 +102,12 @@ class TrainingArguments(transformers.TrainingArguments):
 
 
 def print_rank(*args, **kwargs):
+    """仅在分布式训练的 rank 0 进程输出日志，避免多进程重复打印。
+
+    参数:
+        *args: 待输出的内容，按空格拼接后记录。
+        **kwargs: 预留参数，当前未使用。
+    """
     local_rank = int(os.getenv("LOCAL_RANK", 0))
     if local_rank == 0:
         logger.info("{}", " ".join(map(str, args)))
@@ -107,9 +118,18 @@ def smart_tokenizer_and_embedding_resize(
     tokenizer: transformers.PreTrainedTokenizer,
     model: transformers.PreTrainedModel,
 ):
-    """Resize tokenizer and embedding.
+    """调整 tokenizer 和模型 embedding 的大小以容纳新增的特殊 token。
 
-    Note: This is the unoptimized version that may make your embedding size not be divisible by 64.
+    注意：这是未做显存对齐优化的版本，调整后的 embedding 维度可能不是 64 的倍数。
+
+    参数:
+        special_tokens_dict: 待新增的特殊 token，键为 token 类型
+            （如 `pad_token`），值为 token 文本。
+        tokenizer: 需要新增特殊 token 的分词器，原地修改。
+        model: 需要同步调整 embedding 大小的模型，原地修改。
+
+    返回:
+        None，所有修改均原地作用于传入的 `tokenizer` 和 `model`。
     """
     def _get_resized_lm_head(
         self, old_lm_head, new_num_tokens: int | None = None, transposed: bool = False
@@ -234,7 +254,17 @@ def preprocess(
     tokenizer: transformers.PreTrainedTokenizer,
     num_proc:int = 1,
 ) -> dict[str, Any]:
- 
+    """对格式化后的数据做分词，生成训练所需的 input_ids/labels。
+
+    参数:
+        format_dataset: `format_data` 产出的、已拼好 source/target 文本的数据集。
+        tokenizer: 用于分词的分词器。
+        num_proc: 并行处理的进程数。
+
+    返回:
+        分词、过滤超长样本后的数据集，列包含 `input_ids`、`labels`。
+    """
+
     def _tokenize_fn(example):
         """Tokenize example"""
         example["source"] = tokenizer(example["source"], return_tensors="pt", padding="longest",
@@ -255,7 +285,6 @@ def preprocess(
         example["split_ids"] = len(source_input_id)
         return example
 
-    """Preprocess the data by tokenizing."""
     processed_dataset = format_dataset.map(_tokenize_fn, remove_columns=["source", "target"],num_proc=num_proc)
     processed_dataset = processed_dataset.filter(lambda x: len(x["input_ids"]) <= tokenizer.model_max_length, num_proc=num_proc)
     processed_dataset.set_format("pt", columns=["input_ids", "labels"], output_all_columns=True)
@@ -273,6 +302,19 @@ def preprocess(
 
 
 def format_data(lang: str, dataset: Dataset, num_proc:int = 1):
+    """按语言选用对应的 prompt 模板，拼接出训练所需的 source/target 字段。
+
+    参数:
+        lang: 数据语言，取值 `en` 或 `zh`，决定使用的 prompt 模板。
+        dataset: 原始数据集，每条样本须包含 `instruction`、`output`，
+            `input` 可选。
+        num_proc: 并行处理的进程数。
+
+    返回:
+        新数据集，`instruction`/`input`/`output` 列被替换为
+        `source`/`target` 两列；若样本缺少 `instruction` 或 `output`
+        字段，抛出 `RuntimeError`。
+    """
     prompt_input, prompt_no_input = PROMPT_DICT[lang]["prompt_input"], PROMPT_DICT[lang]["prompt_no_input"]
     def add_prompt(example):
         if "instruction" in example and "output" in example:
@@ -340,7 +382,19 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer, dat
 
 
 def update_token_id(model, tokenizer):
-    # To solve the bug of llama config
+    """修正 tokenizer 与模型配置中特殊 token id 不一致的问题。
+
+    部分模型（如 llama 系列）的 config 里特殊 token id 可能缺失或与
+    tokenizer 实际编码结果不一致，这里统一以 tokenizer 编码结果为准，
+    同步写回 tokenizer 和 `model.config`。
+
+    参数:
+        model: 待同步特殊 token id 的模型，原地修改 `model.config`。
+        tokenizer: 提供特殊 token 定义的分词器，原地修改其 token id 属性。
+
+    返回:
+        None，所有修改均原地生效。
+    """
     for name in ['bos', 'eos', 'pad', 'unk']:
         
         token_id_name = '_'.join([name, 'token_id'])
@@ -356,6 +410,14 @@ def update_token_id(model, tokenizer):
 
 
 def train():
+    """有监督微调训练入口。
+
+    解析命令行传入的模型/数据/训练参数，加载基础模型与 tokenizer，
+    按需补齐特殊 token、启用 LoRA 或冻结部分参数，构建训练数据集后
+    调用 `transformers.Trainer` 执行训练，并保存训练状态与最终模型。
+    该函数不接受显式参数，所有配置均通过命令行参数传入；无返回值，
+    产出以模型文件和日志的形式落盘。
+    """
     parser = transformers.HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
     

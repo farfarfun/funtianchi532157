@@ -90,6 +90,71 @@ def test_training_failure_is_propagated(monkeypatch: pytest.MonkeyPatch) -> None
         train.step41()
 
 
+def test_step31_uses_language_specific_refine_configs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """中英文数据清洗必须分别使用各自的 refine 配置，不能共用英文配置。"""
+    from funtianchi532157 import train
+
+    calls: list[list[str]] = []
+
+    def record(command: list[str], check: bool) -> None:
+        assert check is True
+        calls.append(command)
+
+    monkeypatch.setattr(train.subprocess, "run", record)
+    train.step31()
+
+    assert len(calls) == 2
+    assert "alpaca-cot-en-refine.yaml" in " ".join(calls[0])
+    assert "raw_data_en.jsonl" in " ".join(calls[0])
+    assert "alpaca-cot-zh-refine.yaml" in " ".join(calls[1])
+    assert "raw_data_zh.jsonl" in " ".join(calls[1])
+
+
+def test_evaluation_command_uses_project_relative_challenge_data(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """评估步骤的挑战数据路径必须基于仓库自身位置，不能硬编码成固定绝对路径。"""
+    from funtianchi532157 import train
+
+    calls: list[list[str]] = []
+
+    def record(command: list[str], check: bool, cwd: str) -> None:
+        assert check is True
+        assert cwd == str(ROOT / "funtianchi532157")
+        calls.append(command)
+
+    monkeypatch.setattr(train.subprocess, "run", record)
+    train.step51()
+
+    assert calls == [
+        [
+            "bash",
+            str(
+                ROOT
+                / "funtianchi532157/lm-evaluation-harness/examples/challenge-1B-stage1.sh"
+            ),
+            "dev",
+            str(ROOT / "funtianchi532157/outputs/finetuned_model"),
+            str(ROOT / "funtianchi532157/data/challenge-data"),
+            str(ROOT / "funtianchi532157/outputs/eval_results"),
+        ]
+    ]
+
+
+def test_evaluation_failure_is_propagated(monkeypatch: pytest.MonkeyPatch) -> None:
+    """评估子进程失败时不应吞掉异常。"""
+    from funtianchi532157 import train
+
+    def fail(command: list[str], check: bool, cwd: str) -> None:
+        raise subprocess.CalledProcessError(1, command)
+
+    monkeypatch.setattr(train.subprocess, "run", fail)
+    with pytest.raises(subprocess.CalledProcessError):
+        train.step51()
+
+
 def test_process_data_runs_default_executor(monkeypatch: pytest.MonkeyPatch) -> None:
     """默认数据处理执行器应被创建并运行。"""
     from funtianchi532157.process import process_data
