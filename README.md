@@ -10,7 +10,7 @@ GPU、模型权重及数据集，默认路径见 `funtianchi532157/train.py`。
 需要 Python 3.12（由依赖 `funget` 的下限决定）及 uv：
 
 ```bash
-uv sync
+./funtianchi532157/install.sh
 ```
 
 ## 完整流程
@@ -21,11 +21,11 @@ uv sync
 | 步骤 | 命令 | 说明 |
 | --- | --- | --- |
 | step11 | `./funtianchi532157/process/steps.sh step11` | 执行 `install.sh`，安装 lm-evaluation-harness 等子项目依赖 |
-| step21 | `./funtianchi532157/process/steps.sh step21` | 执行 `prepare_data_and_models.sh`，通过 `funget` 下载评测数据、基础模型权重和原始训练数据到 `data/` 目录 |
-| step31 | `./funtianchi532157/process/steps.sh step31` | 用 Data-Juicer 清洗中英文原始数据，产出 `outputs/refined_data/{en,zh}_refine.jsonl` |
-| step41 | `./funtianchi532157/process/steps.sh step41` | 微调基础模型（需要 GPU），产出 `outputs/finetuned_model` |
-| step51 | `./funtianchi532157/process/steps.sh step51` | 用 lm-evaluation-harness 在验证集上评估微调后的模型，产出 `outputs/eval_dev_results` |
-| step61 | `./funtianchi532157/process/steps.sh step61` | 生成提交榜单用的评测结果，产出 `outputs/eval_board_results` |
+| step21 | `./funtianchi532157/process/steps.sh step21` | 执行 `prepare_data_and_models.sh`，通过 `funget` 下载评测数据、基础模型权重和原始训练数据到 `funtianchi532157/data/` |
+| step31 | `./funtianchi532157/process/steps.sh step31` | 用 Data-Juicer 清洗中英文原始数据，产出 `funtianchi532157/outputs/refined_data/{en,zh}_refine.jsonl` |
+| step41 | `./funtianchi532157/process/steps.sh step41` | 微调基础模型（需要 GPU），产出 `funtianchi532157/outputs/finetuned_model` |
+| step51 | `./funtianchi532157/process/steps.sh step51` | 用 lm-evaluation-harness 在验证集上评估微调后的模型，产出 `funtianchi532157/outputs/eval_dev_results` |
+| step61 | `./funtianchi532157/process/steps.sh step61` | 生成提交榜单用的评测结果，产出 `funtianchi532157/outputs/eval_board_results` |
 
 数据和模型准备好后，可按序运行各步骤，例如：
 
@@ -37,7 +37,7 @@ uv sync
 ./funtianchi532157/process/steps.sh step51
 ```
 
-`funtianchi532157/train.py` 提供了 step31/step41/step51 的等价 Python 入口
+`funtianchi532157/train.py` 提供了 step31/step41/step51 的 Python 入口
 （`python funtianchi532157/train.py` 默认执行 step41 微调）；
 `funtianchi532157/process/process_data.py` 负责单次数据清洗调用，
 `funtianchi532157/lm-training/` 包含训练脚本，`funtianchi532157/lm-evaluation-harness/`

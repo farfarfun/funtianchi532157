@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 from pathlib import Path
 from types import SimpleNamespace
@@ -50,6 +51,35 @@ def test_step31_resolves_paths_from_script_location(tmp_path: Path) -> None:
     )
     assert "alpaca-cot-en-refine.yaml" in calls[0]
     assert "alpaca-cot-zh-refine.yaml" in calls[1]
+
+
+def test_prepare_data_resolves_paths_from_script_location(tmp_path: Path) -> None:
+    """数据下载脚本应将数据保存到脚本所在项目目录。"""
+    project_dir = tmp_path / "project"
+    project_dir.mkdir()
+    script = project_dir / "prepare_data_and_models.sh"
+    shutil.copy2(ROOT / "funtianchi532157/prepare_data_and_models.sh", script)
+
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    calls_file = tmp_path / "calls"
+    for command in ("funget", "tar"):
+        stub = bin_dir / command
+        stub.write_text(
+            '#!/bin/sh\nprintf \'%s\\n\' "$PWD" >> "$CALLS_FILE"\n',
+            encoding="utf-8",
+        )
+        stub.chmod(0o755)
+    env = os.environ | {
+        "CALLS_FILE": str(calls_file),
+        "PATH": f"{bin_dir}:{os.environ['PATH']}",
+    }
+
+    subprocess.run(["bash", str(script)], cwd=tmp_path, env=env, check=True)
+
+    calls = calls_file.read_text(encoding="utf-8").splitlines()
+    assert calls
+    assert all(call.startswith(str(project_dir / "data")) for call in calls)
 
 
 def test_training_command_uses_expected_entrypoint(
@@ -138,7 +168,7 @@ def test_evaluation_command_uses_project_relative_challenge_data(
             "dev",
             str(ROOT / "funtianchi532157/outputs/finetuned_model"),
             str(ROOT / "funtianchi532157/data/challenge-data"),
-            str(ROOT / "funtianchi532157/outputs/eval_results"),
+            str(ROOT / "funtianchi532157/outputs/eval_dev_results"),
         ]
     ]
 

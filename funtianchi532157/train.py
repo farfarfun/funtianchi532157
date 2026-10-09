@@ -17,7 +17,7 @@ refine_data_zh_path = f"{home_path}/outputs/refined_data/zh_refine.jsonl"
 origin_model_path = f"{home_path}/data/models/falcon-rw-1b"
 finetuned_model_path = f"{home_path}/outputs/finetuned_model"
 eval_path = f"{home_path}/lm-evaluation-harness"
-eval_result_path = f"{home_path}/outputs/eval_results"
+eval_result_path = f"{home_path}/outputs/eval_dev_results"
 challenge_data_path = f"{home_path}/data/challenge-data"
 
 
