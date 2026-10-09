@@ -14,9 +14,9 @@ eval_dev_result_path="$project_dir/outputs/eval_dev_results"
 eval_board_result_path="$project_dir/outputs/eval_board_results"
 
 if [[ ${1} = "step11" ]]; then
-  sh "$project_dir/install.sh"
+  bash "$project_dir/install.sh"
 elif [[ ${1} = "step21" ]]; then
-  sh "$project_dir/prepare_data_and_models.sh"
+  bash "$project_dir/prepare_data_and_models.sh"
 elif [[ ${1} = "step31" ]]; then
   # 处理
   python "$project_dir/process/process_data.py" --config "$project_dir/configs/alpaca_cot/alpaca-cot-en-refine.yaml" --dataset_path "$project_dir/data/raw_data/raw_data_en.jsonl" --export_path "$refine_data_path/en_refine.jsonl" --np 10

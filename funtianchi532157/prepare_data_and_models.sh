@@ -1,12 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
 
-if [ ! -d "data" ]; then
+project_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+data_dir="$project_dir/data"
+
+if [ ! -d "$data_dir" ]; then
     echo "make new directory data"
-    mkdir data
+    mkdir -p "$data_dir"
 else
     echo "data directory exists"
 fi
 
-cd data
+cd "$data_dir"
 
 # prepare evaluation data
 echo "Preparing evaluation data..."
@@ -33,6 +38,4 @@ mkdir -p raw_data
 cd raw_data
 funget http://dail-wlcb.oss-cn-wulanchabu.aliyuncs.com/dj-competition/raw_data/raw_data_en.jsonl --multi --block_size=200 --worker=30
 funget http://dail-wlcb.oss-cn-wulanchabu.aliyuncs.com/dj-competition/raw_data/raw_data_zh.jsonl --multi --block_size=200 --worker=30
-
-cd -
 

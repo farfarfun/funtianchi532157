@@ -10,8 +10,12 @@ class TrainingArguments(transformers.TrainingArguments):
     lora_path: str | None = field(default="")
 
 
-def convert_to_hf():
+def convert_to_hf() -> None:
+    """合并 LoRA 权重并导出 Hugging Face 格式模型。
 
+    参数：无。模型和 LoRA 权重路径由命令行参数提供。
+    返回值：无。合并后的模型和分词器保存到 ``output_dir``。
+    """
     parser = transformers.HfArgumentParser(
             (ModelArguments, TrainingArguments)
         )
